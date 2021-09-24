@@ -65,15 +65,15 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _scanBarcode = barcodeScanRes;
-      print('prueba toma de foto: ' + _scanBarcode);
       procesar(_scanBarcode);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Escaneo de prueba.
     // procesar(
-    //     '0351921253����������������������������PubDSK_1����������������124314731032488086VARGAS����������������������������������PINTO������������������������������������PAULA������������������������������������ANDREA����������������������������������0F19961215150010B+��2C��Ç[ÿm|¢osv¨b²UI:=ÑÓ[¶QÈÒ¥Óh¨WÄfÌ[o¯J²qÎ®ªjµ;¹T Jª,±~i1x¨;H£X%P5¢K|[z;{~·Ò7;ÃÍYwÅÄ`·¿v«¼Gd)~T^KLÓê)"D1(}½7zÌ´åÿ��7C��³Vÿ|Uk{q{d¤ko¡YZÌuJz®r[°QÍYÄPKCeB4Z`CXHo@�?s/vuvl|brn¦|£¼o®c');
+    //     '0351921253����������������������������PubDSK_1����������������124314731111111111VARGAS����������������������������������PINTO������������������������������������PAULA������������������������������������ANDREA DE LA SAGRADA TRINIDAD����������������������������������0F19961215150010B+��2C��Ç[ÿm|¢osv¨b²UI:=ÑÓ[¶QÈÒ¥Óh¨WÄfÌ[o¯J²qÎ®ªjµ;¹T Jª,±~i1x¨;H£X%P5¢K|[z;{~·Ò7;ÃÍYwÅÄ`·¿v«¼Gd)~T^KLÓê)"D1(}½7zÌ´åÿ��7C��³Vÿ|Uk{q{d¤ko¡YZÌuJz®r[°QÍYÄPKCeB4Z`CXHo@�?s/vuvl|brn¦|£¼o®c');
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(title: const Text('Barcode scan')),
@@ -130,9 +130,11 @@ class _MyAppState extends State<MyApp> {
   ];
 
   void procesar(String scanBarcode) {
+    print('prueba toma de foto: ' + scanBarcode);
     bool isLetra = true;
     bool lastIsLetra = false;
     String subCedula = '';
+    String Nombres = '';
     String Result = '';
     if (scanBarcode.contains('PubDSK_1') && scanBarcode.length > 400) {
       for (int i = 50; i < scanBarcode.length; i++) {
@@ -158,31 +160,39 @@ class _MyAppState extends State<MyApp> {
 
         if ((scanBarcode.substring(i, i + 2) == '0M' ||
             scanBarcode.substring(i, i + 2) == '0F')) {
-          Result += scanBarcode.substring(i + 2, i + 6) +
-              ' ' +
-              scanBarcode.substring(i + 6, i + 8) +
-              ' ' +
-              scanBarcode.substring(i + 8, i + 10) +
-              ' RH:' +
-              scanBarcode.substring(i + 16, i + 18) +
-              ' ' +
-              scanBarcode.substring(i + 1, i + 2);
+          Result += scanBarcode.substring(i + 2, i + 6) + // Año
+              ',' +
+              scanBarcode.substring(i + 6, i + 8) + // Mes
+              ',' +
+              scanBarcode.substring(i + 8, i + 10) + // Día
+              ',' +
+              scanBarcode.substring(i + 16, i + 18) + // RH
+              ',' +
+              scanBarcode.substring(i + 1, i + 2);  // Genero
           break;
         } else {
+          // Procedimiento de toma de nombre y cédula
+
           if (isLetra) {
-            if (Result == '') {
+            if (Nombres == '') {
               subCedula = scanBarcode.substring(i - 10, i);
               while (subCedula.startsWith('0')) {
                 subCedula = subCedula.substring(1);
               }
             }
-            Result += scanBarcode.substring(i, i + 1);
+            Nombres += scanBarcode.substring(i, i + 1);
           } else if (!isLetra && lastIsLetra) {
-            Result += ' ';
+            Nombres += ' ';
           }
         }
       }
-      Result += " " + subCedula;
+
+      // Impresión de resultados
+      
+      String A = Result + "," + subCedula + ',' + Nombres;
+      print((A).split(','));
+      Result += ',' + subCedula + ',' + Nombres;
+
     } else {
       Result = 'No se pudo validar documento';
     }
