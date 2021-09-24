@@ -65,7 +65,6 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _scanBarcode = barcodeScanRes;
-      print('prueba toma de foto: ' + _scanBarcode);
       procesar(_scanBarcode);
     });
   }
@@ -130,6 +129,7 @@ class _MyAppState extends State<MyApp> {
   ];
 
   void procesar(String scanBarcode) {
+    print('prueba toma de foto: ' + scanBarcode);
     bool isLetra = true;
     bool lastIsLetra = false;
     int spaces = 0;
