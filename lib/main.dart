@@ -65,6 +65,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _scanBarcode = barcodeScanRes;
+      print('prueba toma de foto: ' + _scanBarcode);
       procesar(_scanBarcode);
     });
   }
@@ -129,67 +130,65 @@ class _MyAppState extends State<MyApp> {
   ];
 
   void procesar(String scanBarcode) {
-    print('prueba toma de foto: ' + scanBarcode);
     bool isLetra = true;
     bool lastIsLetra = false;
-    int spaces = 0;
     String subCedula = '';
     String Result = '';
-    for (int i = 50; i < scanBarcode.length; i++) {
-      for (String letra in letras) {
-        isLetra = true;
-        if (scanBarcode.substring(i, i + 1) == letra) {
+    if (scanBarcode.contains('PubDSK_1') && scanBarcode.length > 400) {
+      for (int i = 50; i < scanBarcode.length; i++) {
+        for (String letra in letras) {
           isLetra = true;
-          break;
-        } else {
-          isLetra = false;
+          if (scanBarcode.substring(i, i + 1) == letra) {
+            isLetra = true;
+            break;
+          } else {
+            isLetra = false;
+          }
         }
-      }
 
-      for (String letra in letras) {
-        lastIsLetra = false;
-        if (scanBarcode.substring(i - 1, i) == letra) {
-          lastIsLetra = true;
-          break;
-        } else {
+        for (String letra in letras) {
           lastIsLetra = false;
+          if (scanBarcode.substring(i - 1, i) == letra) {
+            lastIsLetra = true;
+            break;
+          } else {
+            lastIsLetra = false;
+          }
+        }
+
+        if ((scanBarcode.substring(i, i + 2) == '0M' ||
+            scanBarcode.substring(i, i + 2) == '0F')) {
+          Result += scanBarcode.substring(i + 2, i + 6) +
+              ' ' +
+              scanBarcode.substring(i + 6, i + 8) +
+              ' ' +
+              scanBarcode.substring(i + 8, i + 10) +
+              ' RH:' +
+              scanBarcode.substring(i + 16, i + 18) +
+              ' ' +
+              scanBarcode.substring(i + 1, i + 2);
+          break;
+        } else {
+          if (isLetra) {
+            if (Result == '') {
+              subCedula = scanBarcode.substring(i - 10, i);
+              while (subCedula.startsWith('0')) {
+                subCedula = subCedula.substring(1);
+              }
+            }
+            Result += scanBarcode.substring(i, i + 1);
+          } else if (!isLetra && lastIsLetra) {
+            Result += ' ';
+          }
         }
       }
-
-      if (isLetra && spaces < 4) {
-        if (Result == '') {
-          subCedula = scanBarcode.substring(i - 10, i);
-        }
-        Result += scanBarcode.substring(i, i + 1);
-      } else if (!isLetra && lastIsLetra && spaces < 4) {
-        Result += ' ';
-        spaces++;
-      }
-
-      if (subCedula != '') {
-        while (subCedula.startsWith('0')) {
-          subCedula = subCedula.substring(1);
-        }
-      }
-
-      if ((scanBarcode.substring(i, i + 2) == '0M' ||
-              scanBarcode.substring(i, i + 2) == '0F') &&
-          spaces == 4) {
-        Result += scanBarcode.substring(i + 2, i + 6) +
-            ' ' +
-            scanBarcode.substring(i + 6, i + 8) +
-            ' ' +
-            scanBarcode.substring(i + 8, i + 10) +
-            ' RH:' +
-            scanBarcode.substring(i + 16, i + 18) +
-            ' ' +
-            scanBarcode.substring(i + 1, i + 2);
-        break;
-      }
+      Result += " " + subCedula;
+    } else {
+      Result = 'No se pudo validar documento';
     }
-    print(Result + " " + subCedula);
+    print('resultado: ' + Result);
     setState(() {
-      _scanBarcode = Result + " " + subCedula;
+      _scanBarcode = Result;
     });
   }
 }
